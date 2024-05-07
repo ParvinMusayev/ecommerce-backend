@@ -65,7 +65,6 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
 });
 
 // logout functionality
-
 const logout = asyncHandler(async (req, res) => {
   const cookie = req.cookies;
   if (!cookie?.refreshToken) throw new Error("No Refresh Token in Cookies");
