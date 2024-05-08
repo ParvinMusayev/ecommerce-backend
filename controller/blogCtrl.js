@@ -27,4 +27,24 @@ const updateBlog = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { createBlog, updateBlog };
+const getBlog = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoDbId(id);
+  try {
+    const getBlog = await Blog.findById(id)
+      .populate("likes")
+      .populate("dislikes");
+    const updateViews = await Blog.findByIdAndUpdate(
+      id,
+      {
+        $inc: { numViews: 1 },
+      },
+      { new: true }
+    );
+    res.json(getBlog);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+module.exports = { createBlog, updateBlog, getBlog };
