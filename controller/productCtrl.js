@@ -17,6 +17,24 @@ const createProduct = asyncHandler(async (req, res) => {
   }
 });
 
+// update product
+const updateProduct = asyncHandler(async (req, res) => {
+  const id = req.params;
+  validateMongoDbId(id);
+  try {
+    if (req.body.title) {
+      req.body.slug = slugify(req.body.title);
+    }
+    const updateProduct = await Product.findOneAndUpdate({ id }, req.body, {
+      new: true,
+    });
+    res.json(updateProduct);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// get product
 const getaProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   validateMongoDbId(id);
@@ -28,6 +46,7 @@ const getaProduct = asyncHandler(async (req, res) => {
   }
 });
 
+// get all product
 const getAllProduct = asyncHandler(async (req, res) => {
   try {
     // Filtering
@@ -78,4 +97,5 @@ module.exports = {
   createProduct,
   getaProduct,
   getAllProduct,
+  updateProduct,
 };
