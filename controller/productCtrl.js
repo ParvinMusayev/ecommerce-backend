@@ -34,6 +34,18 @@ const updateProduct = asyncHandler(async (req, res) => {
   }
 });
 
+// delete product
+const deleteProduct = asyncHandler(async (req, res) => {
+  const id = req.params;
+  validateMongoDbId(id);
+  try {
+    const deleteProduct = await Product.findOneAndDelete(id);
+    res.json(deleteProduct);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 // get product
 const getaProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -98,4 +110,5 @@ module.exports = {
   getaProduct,
   getAllProduct,
   updateProduct,
+  deleteProduct,
 };
