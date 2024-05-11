@@ -4,6 +4,7 @@ const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
 const cloudinaryUploadImg = require("../utils/cloudinary");
 const fs = require("fs");
+
 const createBlog = asyncHandler(async (req, res) => {
   try {
     const newBlog = await Blog.create(req.body);
@@ -45,6 +46,7 @@ const getBlog = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
 const getAllBlogs = asyncHandler(async (req, res) => {
   try {
     const getBlogs = await Blog.find();
@@ -111,6 +113,7 @@ const liketheBlog = asyncHandler(async (req, res) => {
     res.json(blog);
   }
 });
+
 const disliketheBlog = asyncHandler(async (req, res) => {
   const { blogId } = req.body;
   validateMongoDbId(blogId);
