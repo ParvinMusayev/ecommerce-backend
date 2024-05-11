@@ -4,7 +4,6 @@ const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const validateMongoDbId = require("../utils/validateMongodbId");
 
-// create product
 const createProduct = asyncHandler(async (req, res) => {
   try {
     if (req.body.title) {
@@ -17,7 +16,6 @@ const createProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// update product
 const updateProduct = asyncHandler(async (req, res) => {
   const id = req.params;
   validateMongoDbId(id);
@@ -34,7 +32,6 @@ const updateProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// delete product
 const deleteProduct = asyncHandler(async (req, res) => {
   const id = req.params;
   validateMongoDbId(id);
@@ -46,7 +43,6 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// get product
 const getaProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   validateMongoDbId(id);
@@ -58,7 +54,6 @@ const getaProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// get all product
 const getAllProduct = asyncHandler(async (req, res) => {
   try {
     // Filtering
@@ -139,6 +134,62 @@ const addToWishlist = asyncHandler(async (req, res) => {
   }
 });
 
+const rating = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const { star, prodId, comment } = req.body;
+  try {
+    const product = await Product.findById(prodId);
+    let alreadyRated = product.ratings.find(
+      (userId) => userId.postedby.toString() === _id.toString()
+    );
+    if (alreadyRated) {
+      const updateRating = await Product.updateOne(
+        {
+          ratings: { $elemMatch: alreadyRated },
+        },
+        {
+          $set: { "ratings.$.star": star, "ratings.$.comment": comment },
+        },
+        {
+          new: true,
+        }
+      );
+    } else {
+      const rateProduct = await Product.findByIdAndUpdate(
+        prodId,
+        {
+          $push: {
+            ratings: {
+              star: star,
+              comment: comment,
+              postedby: _id,
+            },
+          },
+        },
+        {
+          new: true,
+        }
+      );
+    }
+    const getallratings = await Product.findById(prodId);
+    let totalRating = getallratings.ratings.length;
+    let ratingsum = getallratings.ratings
+      .map((item) => item.star)
+      .reduce((prev, curr) => prev + curr, 0);
+    let actualRating = Math.round(ratingsum / totalRating);
+    let finalproduct = await Product.findByIdAndUpdate(
+      prodId,
+      {
+        totalrating: actualRating,
+      },
+      { new: true }
+    );
+    res.json(finalproduct);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   createProduct,
   getaProduct,
@@ -146,4 +197,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   addToWishlist,
+  rating,
 };
